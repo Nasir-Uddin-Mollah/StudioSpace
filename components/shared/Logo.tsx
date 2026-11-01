@@ -6,7 +6,7 @@ interface LogoProps {
   iconSize?: string;
 }
 
-export default function Logo({ className = "", iconSize = "size-5" }: LogoProps) {
+const Logo = ({ className = "", iconSize = "size-5" }: LogoProps) => {
   return (
     <Link
       href="/"
@@ -20,5 +20,6 @@ export default function Logo({ className = "", iconSize = "size-5" }: LogoProps)
       </span>
     </Link>
   );
-}
+};
 
+export default Logo;

@@ -34,11 +34,11 @@ const initialState: ThemeProviderState = {
 
 const ThemeProviderContext = createContext<ThemeProviderState>(initialState);
 
-export function ThemeProvider({
+export const ThemeProvider = ({
   children,
   defaultTheme = "light",
   storageKey = "studiospace-theme",
-}: ThemeProviderProps) {
+}: ThemeProviderProps) => {
   const [theme, setThemeState] = useState<Theme>(defaultTheme);
   const [isMounted, setIsMounted] = useState(false);
 

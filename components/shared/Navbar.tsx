@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  LayoutDashboard,
   PlusCircle,
   Building2,
   CalendarDays,
@@ -52,7 +51,7 @@ const userMenuLinks = [
   { name: "Saved Wishlist", href: "/wishlist", icon: Heart },
 ];
 
-export default function Navbar() {
+const Navbar = () => {
   const pathname = usePathname();
   const router = useRouter();
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -82,7 +81,10 @@ export default function Navbar() {
           <div className="flex items-center gap-6 lg:gap-8 min-w-0">
             <Logo />
 
-            <nav className="hidden md:flex items-center gap-1" aria-label="Main Navigation">
+            <nav
+              className="hidden md:flex items-center gap-1"
+              aria-label="Main Navigation"
+            >
               {navLinks.map((link) => {
                 const active = isLinkActive(link.href);
                 return (
@@ -114,7 +116,7 @@ export default function Navbar() {
                   href="/add-studio"
                   className={cn(
                     buttonVariants({ variant: "outline", size: "sm" }),
-                    "rounded-full text-xs font-semibold gap-1.5 hidden md:inline-flex"
+                    "rounded-full text-xs font-semibold gap-1.5 hidden md:inline-flex",
                   )}
                 >
                   <PlusCircle className="size-3.5 text-rose-500" />
@@ -133,10 +135,15 @@ export default function Navbar() {
                   >
                     <Avatar className="size-8 border border-border">
                       {user.image ? (
-                        <AvatarImage src={user.image} alt={user.name || "User"} />
+                        <AvatarImage
+                          src={user.image}
+                          alt={user.name || "User"}
+                        />
                       ) : (
                         <AvatarFallback className="bg-gradient-to-tr from-amber-500/20 to-indigo-500/20 text-foreground text-xs font-bold">
-                          {user.name ? user.name.slice(0, 2).toUpperCase() : "SS"}
+                          {user.name
+                            ? user.name.slice(0, 2).toUpperCase()
+                            : "SS"}
                         </AvatarFallback>
                       )}
                     </Avatar>
@@ -152,8 +159,12 @@ export default function Navbar() {
                     className="w-56 p-1.5 rounded-xl border border-border/60 bg-popover/95 backdrop-blur-md shadow-xl"
                   >
                     <div className="px-2.5 py-2">
-                      <p className="text-sm font-semibold text-foreground truncate">{user.name}</p>
-                      <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                      <p className="text-sm font-semibold text-foreground truncate">
+                        {user.name}
+                      </p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {user.email}
+                      </p>
                     </div>
 
                     <DropdownMenuSeparator className="my-1" />
@@ -191,7 +202,10 @@ export default function Navbar() {
               <div className="hidden sm:flex items-center gap-2">
                 <Link
                   href="/login"
-                  className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "text-sm font-medium")}
+                  className={cn(
+                    buttonVariants({ variant: "ghost", size: "sm" }),
+                    "text-sm font-medium",
+                  )}
                 >
                   Log In
                 </Link>
@@ -199,7 +213,7 @@ export default function Navbar() {
                   href="/register"
                   className={cn(
                     buttonVariants({ size: "sm" }),
-                    "text-sm font-semibold text-white bg-gradient-to-r from-amber-500 via-rose-500 to-indigo-600 hover:opacity-95 shadow-xs"
+                    "text-sm font-semibold text-white bg-gradient-to-r from-amber-500 via-rose-500 to-indigo-600 hover:opacity-95 shadow-xs",
                   )}
                 >
                   <Sparkles className="size-3.5 mr-1" />
@@ -238,21 +252,29 @@ export default function Navbar() {
                       <div className="p-4 bg-muted/40 border-b border-border/50 flex items-center gap-3">
                         <Avatar className="size-10 border border-border">
                           {user.image ? (
-                            <AvatarImage src={user.image} alt={user.name || "User"} />
+                            <AvatarImage
+                              src={user.image}
+                              alt={user.name || "User"}
+                            />
                           ) : (
                             <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
-                              {user.name ? user.name.slice(0, 2).toUpperCase() : "SS"}
+                              {user.name
+                                ? user.name.slice(0, 2).toUpperCase()
+                                : "SS"}
                             </AvatarFallback>
                           )}
                         </Avatar>
                         <div className="min-w-0 flex-1">
-                          <p className="text-sm font-semibold text-foreground truncate">{user.name}</p>
-                          <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                          <p className="text-sm font-semibold text-foreground truncate">
+                            {user.name}
+                          </p>
+                          <p className="text-xs text-muted-foreground truncate">
+                            {user.email}
+                          </p>
                         </div>
                       </div>
                     )}
 
-                    {/* Main Nav Links */}
                     <div className="p-4 space-y-1">
                       <p className="px-2 pb-1 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
                         Navigation
@@ -320,7 +342,10 @@ export default function Navbar() {
                         <Link
                           href="/login"
                           onClick={() => setSheetOpen(false)}
-                          className={cn(buttonVariants({ variant: "outline" }), "w-full justify-center text-sm")}
+                          className={cn(
+                            buttonVariants({ variant: "outline" }),
+                            "w-full justify-center text-sm",
+                          )}
                         >
                           Log In
                         </Link>
@@ -329,7 +354,7 @@ export default function Navbar() {
                           onClick={() => setSheetOpen(false)}
                           className={cn(
                             buttonVariants(),
-                            "w-full justify-center text-sm text-white bg-gradient-to-r from-amber-500 via-rose-500 to-indigo-600"
+                            "w-full justify-center text-sm text-white bg-gradient-to-r from-amber-500 via-rose-500 to-indigo-600",
                           )}
                         >
                           Create Account
@@ -345,4 +370,6 @@ export default function Navbar() {
       </div>
     </header>
   );
-}
+};
+
+export default Navbar;

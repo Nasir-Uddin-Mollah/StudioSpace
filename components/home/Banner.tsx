@@ -51,7 +51,7 @@ const slides: Slide[] = [
   },
 ];
 
-export default function Banner() {
+const Banner = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 
@@ -65,7 +65,6 @@ export default function Banner() {
     setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides);
   }, [totalSlides]);
 
-  // Autoplay functionality
   useEffect(() => {
     if (isPaused) return;
     const timer = setInterval(() => {
@@ -81,7 +80,6 @@ export default function Banner() {
       onMouseLeave={() => setIsPaused(false)}
       aria-label="StudioSpace Hero Banner Carousel"
     >
-      {/* Slides Container: calibrated height so buttons are always visible on all screens */}
       <div className="relative h-[480px] sm:h-[520px] md:h-[550px] lg:h-[580px] flex items-center justify-center">
         {slides.map((slide, index) => {
           const isActive = index === currentSlide;
@@ -94,7 +92,6 @@ export default function Banner() {
                 isActive ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"
               }`}
             >
-              {/* Background Image stored locally in public folder */}
               <div
                 className="absolute inset-0 bg-cover bg-center"
                 style={{
@@ -102,14 +99,11 @@ export default function Banner() {
                 }}
               />
 
-              {/* Rich cinematic overlays: maintains rich, saturated colors in BOTH light & dark modes */}
               <div className="absolute inset-0 bg-black/55" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/60" />
               <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_20%,rgba(0,0,0,0.65)_100%)]" />
 
-              {/* Content Grid */}
               <div className="relative h-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-center items-center text-center py-8">
-                {/* Category Badge */}
                 <div
                   className={`inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-white/20 bg-black/50 backdrop-blur-md text-white text-xs font-medium mb-3 sm:mb-4 shadow-lg transition-all duration-700 ${
                     isActive ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
@@ -121,7 +115,6 @@ export default function Banner() {
                   <span className="text-amber-300 font-semibold">Verified Spaces</span>
                 </div>
 
-                {/* Punchy Headline (compacted line-height and scale to avoid overflowing viewport) */}
                 <h1
                   className={`text-2xl sm:text-4xl md:text-5xl lg:text-5xl font-black tracking-tight text-white max-w-3xl leading-tight sm:leading-tight transition-all duration-700 delay-100 ${
                     isActive ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
@@ -135,7 +128,6 @@ export default function Banner() {
                   </span>
                 </h1>
 
-                {/* Subtext */}
                 <p
                   className={`mt-3 sm:mt-4 text-xs sm:text-sm md:text-base text-slate-200/90 max-w-xl leading-relaxed transition-all duration-700 delay-200 ${
                     isActive ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
@@ -144,7 +136,6 @@ export default function Banner() {
                   {slide.subtext}
                 </p>
 
-                {/* Primary CTA Buttons (Linking to /studios as required) */}
                 <div
                   className={`mt-5 sm:mt-6 flex flex-wrap items-center justify-center gap-3 sm:gap-4 transition-all duration-700 delay-300 ${
                     isActive ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
@@ -172,7 +163,6 @@ export default function Banner() {
         })}
       </div>
 
-      {/* Navigation Arrows */}
       <div className="absolute inset-y-0 left-3 right-3 sm:left-6 sm:right-6 z-20 flex items-center justify-between pointer-events-none">
         <button
           type="button"
@@ -193,7 +183,6 @@ export default function Banner() {
         </button>
       </div>
 
-      {/* Dot Indicators */}
       <div className="absolute bottom-4 sm:bottom-5 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
         {slides.map((slide, index) => {
           const isActive = index === currentSlide;
@@ -214,4 +203,6 @@ export default function Banner() {
       </div>
     </section>
   );
-}
+};
+
+export default Banner;

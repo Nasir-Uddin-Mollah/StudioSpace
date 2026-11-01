@@ -4,7 +4,7 @@ import { Moon, Sun } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { Button } from "@/components/ui/button";
 
-export function ThemeToggle({ className }: { className?: string }) {
+export const ThemeToggle = ({ className }: { className?: string }) => {
   const { theme, toggleTheme, isMounted } = useTheme();
 
   if (!isMounted) {
@@ -43,4 +43,3 @@ export function ThemeToggle({ className }: { className?: string }) {
     </Button>
   );
 }
-

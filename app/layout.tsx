@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     "Discover, reserve, and share premium production studios, cinema sound stages, photography cyc walls, and music suites.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+const RootLayout = ({ children }: LayoutProps<"/">) => {
   return (
     <html
       lang="en"
@@ -35,4 +35,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       </body>
     </html>
   );
-}
+};
+
+export default RootLayout;
