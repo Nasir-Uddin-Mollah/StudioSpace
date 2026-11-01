@@ -33,6 +33,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { toast } from "@/components/ui/toast";
 import { authClient } from "@/lib/auth-client";
+import { handleGoogleSignUp } from "@/services/authService";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -134,29 +135,23 @@ export default function RegisterPage() {
     }
   };
 
-  const handleGoogleSignUp = async () => {
+  const handleGoogleClick = async () => {
     try {
       setIsGoogleLoading(true);
       setFormError(null);
-
-      await authClient.signIn.social({
-        provider: "google",
-        callbackURL: "/",
-      });
+      await handleGoogleSignUp("/");
     } catch (err: unknown) {
       const errorMsg =
         err instanceof Error
           ? err.message
           : "Failed to authenticate with Google. Please try again.";
       setFormError(errorMsg);
-      toast.add({
-        title: "Google Sign-In Error",
-        description: errorMsg,
-      });
     } finally {
       setIsGoogleLoading(false);
     }
   };
+
+  
 
   return (
     <div className="relative min-h-[calc(100vh-4rem)] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -191,7 +186,7 @@ export default function RegisterPage() {
               type="button"
               variant="outline"
               disabled={isGoogleLoading || isLoading}
-              onClick={handleGoogleSignUp}
+              onClick={handleGoogleClick}
               className="w-full h-10 font-semibold gap-2.5 border-border/80 hover:bg-muted/70 transition-all cursor-pointer shadow-xs"
             >
               {isGoogleLoading ? (
