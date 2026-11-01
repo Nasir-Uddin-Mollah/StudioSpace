@@ -1,11 +1,19 @@
 "use client";
 
-import * as React from "react";
+import {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  createContext,
+  useContext,
+  type ReactNode,
+} from "react";
 
 type Theme = "dark" | "light" | "system";
 
 type ThemeProviderProps = {
-  children: React.ReactNode;
+  children: ReactNode;
   defaultTheme?: Theme;
   storageKey?: string;
 };
@@ -24,17 +32,17 @@ const initialState: ThemeProviderState = {
   isMounted: false,
 };
 
-const ThemeProviderContext = React.createContext<ThemeProviderState>(initialState);
+const ThemeProviderContext = createContext<ThemeProviderState>(initialState);
 
 export function ThemeProvider({
   children,
   defaultTheme = "light",
   storageKey = "studiospace-theme",
 }: ThemeProviderProps) {
-  const [theme, setThemeState] = React.useState<Theme>(defaultTheme);
-  const [isMounted, setIsMounted] = React.useState(false);
+  const [theme, setThemeState] = useState<Theme>(defaultTheme);
+  const [isMounted, setIsMounted] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setIsMounted(true);
     const savedTheme = localStorage.getItem(storageKey) as Theme | null;
     if (savedTheme) {
@@ -42,7 +50,7 @@ export function ThemeProvider({
     }
   }, [storageKey]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isMounted) return;
     const root = window.document.documentElement;
     root.classList.remove("light", "dark");
@@ -58,7 +66,7 @@ export function ThemeProvider({
     root.classList.add(theme);
   }, [theme, isMounted]);
 
-  const setTheme = React.useCallback(
+  const setTheme = useCallback(
     (newTheme: Theme) => {
       localStorage.setItem(storageKey, newTheme);
       setThemeState(newTheme);
@@ -66,7 +74,7 @@ export function ThemeProvider({
     [storageKey]
   );
 
-  const toggleTheme = React.useCallback(() => {
+  const toggleTheme = useCallback(() => {
     const currentIsDark =
       theme === "dark" ||
       (theme === "system" &&
@@ -77,7 +85,7 @@ export function ThemeProvider({
     setTheme(nextTheme);
   }, [theme, setTheme]);
 
-  const value = React.useMemo(
+  const value = useMemo(
     () => ({
       theme,
       setTheme,
@@ -95,10 +103,9 @@ export function ThemeProvider({
 }
 
 export const useTheme = () => {
-  const context = React.useContext(ThemeProviderContext);
+  const context = useContext(ThemeProviderContext);
   if (context === undefined) {
     throw new Error("useTheme must be used within a ThemeProvider");
   }
   return context;
 };
-

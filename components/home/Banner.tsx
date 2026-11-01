@@ -1,12 +1,12 @@
 "use client";
 
-import * as React from "react";
+import { useState, useEffect, useCallback, type ElementType } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, Sparkles, ArrowRight, Video, Camera, Mic } from "lucide-react";
 
 interface Slide {
   id: number;
-  badgeIcon: React.ElementType;
+  badgeIcon: ElementType;
   badgeText: string;
   headlinePrefix: string;
   headlineGradient: string;
@@ -52,21 +52,21 @@ const slides: Slide[] = [
 ];
 
 export default function Banner() {
-  const [currentSlide, setCurrentSlide] = React.useState(0);
-  const [isPaused, setIsPaused] = React.useState(false);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
 
   const totalSlides = slides.length;
 
-  const nextSlide = React.useCallback(() => {
+  const nextSlide = useCallback(() => {
     setCurrentSlide((prev) => (prev + 1) % totalSlides);
   }, [totalSlides]);
 
-  const prevSlide = React.useCallback(() => {
+  const prevSlide = useCallback(() => {
     setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides);
   }, [totalSlides]);
 
   // Autoplay functionality
-  React.useEffect(() => {
+  useEffect(() => {
     if (isPaused) return;
     const timer = setInterval(() => {
       nextSlide();

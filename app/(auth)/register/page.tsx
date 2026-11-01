@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import { SubmitEvent, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -38,23 +38,23 @@ import { handleGoogleSignUp } from "@/services/authService";
 export default function RegisterPage() {
   const router = useRouter();
 
-  const [name, setName] = React.useState("");
-  const [email, setEmail] = React.useState("");
-  const [photoURL, setPhotoURL] = React.useState("");
-  const [password, setPassword] = React.useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [photoURL, setPhotoURL] = useState("");
+  const [password, setPassword] = useState("");
 
-  const [showPassword, setShowPassword] = React.useState(false);
-  const [isLoading, setIsLoading] = React.useState(false);
-  const [isGoogleLoading, setIsGoogleLoading] = React.useState(false);
-  const [formError, setFormError] = React.useState<string | null>(null);
-  const [passwordTouched, setPasswordTouched] = React.useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [passwordTouched, setPasswordTouched] = useState(false);
 
   const hasMinLength = password.length >= 6;
   const hasUppercase = /[A-Z]/.test(password);
   const hasLowercase = /[a-z]/.test(password);
   const isPasswordValid = hasMinLength && hasUppercase && hasLowercase;
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setFormError(null);
     setPasswordTouched(true);

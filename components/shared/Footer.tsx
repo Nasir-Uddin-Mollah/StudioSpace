@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { Mail, ArrowRight, CheckCircle2, Shield, Heart } from "lucide-react";
 import Logo from "@/components/shared/Logo";
@@ -30,10 +30,10 @@ const creatorAssurances = [
 ];
 
 export default function Footer() {
-  const [email, setEmail] = React.useState("");
-  const [isSubscribed, setIsSubscribed] = React.useState(false);
+  const [email, setEmail] = useState("");
+  const [isSubscribed, setIsSubscribed] = useState(false);
 
-  const handleSubscribe = (e: React.FormEvent) => {
+  const handleSubscribe = (e: FormEvent) => {
     e.preventDefault();
     if (!email || !email.includes("@")) {
       toast.add({

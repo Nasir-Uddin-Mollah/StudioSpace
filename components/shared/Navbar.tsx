@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -55,12 +55,12 @@ const userMenuLinks = [
 export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
-  const [sheetOpen, setSheetOpen] = React.useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
 
   const { data: session } = authClient.useSession();
   const user = session?.user;
 
-  React.useEffect(() => {
+  useEffect(() => {
     setSheetOpen(false);
   }, [pathname]);
 
