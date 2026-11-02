@@ -150,7 +150,7 @@ const Banner = () => {
                   </Link>
 
                   <Link
-                    href="/studios"
+                    href="/add-studio"
                     className="inline-flex items-center gap-2 px-6 py-2.5 sm:px-7 sm:py-3 rounded-xl text-xs sm:text-sm font-semibold text-white bg-white/10 hover:bg-white/20 border border-white/25 backdrop-blur-md transition-all duration-300 hover:scale-[1.02] cursor-pointer"
                   >
                     <Sparkles className="size-3.5 sm:size-4 text-amber-400" />
