@@ -26,6 +26,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { toast } from "@/components/ui/toast";
 import { Studio } from "@/types/studio";
 import { cn } from "cn";
+import { useWishlist } from "@/context/WishlistContext";
 import BookingModal from "./BookingModal";
 
 interface StudioDetailsClientProps {
@@ -56,8 +57,10 @@ const StudioDetailsClient = ({
   studio,
   initialIsBooked = false,
 }: StudioDetailsClientProps) => {
+  const { isInWishlist, toggleWishlist } = useWishlist();
+  const isSaved = studio._id ? isInWishlist(studio._id) : false;
+
   const [isBookingOpen, setIsBookingOpen] = useState(false);
-  const [isSaved, setIsSaved] = useState(false);
   const [isBooked, setIsBooked] = useState(initialIsBooked);
   const [activeIdx, setActiveIdx] = useState(0);
 
@@ -77,14 +80,8 @@ const StudioDetailsClient = ({
     setActiveIdx((prev) => (prev === galleryImages.length - 1 ? 0 : prev + 1));
   };
 
-  const handleSaveToggle = () => {
-    setIsSaved(!isSaved);
-    toast.add({
-      title: isSaved ? "Removed from Wishlist" : "Saved to Wishlist ❤️",
-      description: isSaved
-        ? `"${studio.title}" removed.`
-        : `"${studio.title}" saved to your collection.`,
-    });
+  const handleSaveToggle = async () => {
+    await toggleWishlist(studio);
   };
 
   const hostInitials = studio.userName
@@ -165,14 +162,18 @@ const StudioDetailsClient = ({
             variant="outline"
             size="sm"
             onClick={handleSaveToggle}
-            className={`gap-1.5 text-xs font-medium ${
-              isSaved ? "text-rose-500 border-rose-500/40" : ""
-            }`}
+            className={cn(
+              "gap-1.5 text-xs font-semibold cursor-pointer transition-colors",
+              isSaved
+                ? "text-rose-500 border-rose-500/40 bg-rose-500/10 hover:bg-rose-500/20"
+                : "hover:text-rose-500"
+            )}
           >
             <Heart
-              className={`size-3.5 ${
+              className={cn(
+                "size-3.5 transition-colors",
                 isSaved ? "fill-rose-500 text-rose-500" : ""
-              }`}
+              )}
             />
             <span>{isSaved ? "Saved" : "Save"}</span>
           </Button>

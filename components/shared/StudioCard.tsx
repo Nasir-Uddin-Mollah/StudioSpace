@@ -1,32 +1,26 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { MapPin, Star, Heart, ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
-import { toast } from "@/components/ui/toast";
 import { Studio } from "@/types/studio";
 import { cn } from "cn";
+import { useWishlist } from "@/context/WishlistContext";
 
 interface StudioCardProps {
   studio: Studio;
 }
 
 const StudioCard = ({ studio }: StudioCardProps) => {
-  const [isWishlisted, setIsWishlisted] = useState(false);
+  const { isInWishlist, toggleWishlist } = useWishlist();
+  const isWishlisted = studio._id ? isInWishlist(studio._id) : false;
 
-  const handleToggleWishlist = (e: React.MouseEvent) => {
+  const handleToggleWishlist = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsWishlisted((prev) => !prev);
-    toast.add({
-      title: isWishlisted ? "Removed from Wishlist" : "Saved to Wishlist ❤️",
-      description: isWishlisted
-        ? `"${studio.title}" removed from your saved spaces.`
-        : `"${studio.title}" added to your saved spaces.`,
-    });
+    await toggleWishlist(studio);
   };
 
   return (

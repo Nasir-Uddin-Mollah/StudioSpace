@@ -1,8 +1,53 @@
+import { Suspense } from "react";
+import { headers } from "next/headers";
+import { Loader2 } from "lucide-react";
+import { auth } from "@/lib/auth";
+import WishlistClient from "./_components/WishlistClient";
+import { WishlistItem } from "@/types/wishlist";
+
+const WishlistContent = async () => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  let initialWishlist: WishlistItem[] = [];
+
+  try {
+    if (session?.user?.email) {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/wishlist?email=${encodeURIComponent(session.user.email)}`,
+        { cache: "no-store" }
+      );
+      if (res.ok) {
+        initialWishlist = await res.json();
+      }
+    }
+  } catch {
+    initialWishlist = [];
+  }
+
+  return <WishlistClient initialWishlist={initialWishlist} />;
+};
 
 const WishlistPage = () => {
   return (
-    <div>WishlistPage</div>
-  )
-}
+    <div className="min-h-screen bg-background py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto space-y-6">
+        <Suspense
+          fallback={
+            <div className="flex flex-col items-center justify-center py-24 text-center">
+              <Loader2 className="size-8 animate-spin text-primary mb-3" />
+              <p className="text-sm font-medium text-muted-foreground">
+                Loading your saved studios...
+              </p>
+            </div>
+          }
+        >
+          <WishlistContent />
+        </Suspense>
+      </div>
+    </div>
+  );
+};
 
-export default WishlistPage
+export default WishlistPage;

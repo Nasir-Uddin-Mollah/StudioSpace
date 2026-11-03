@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
+import { WishlistProvider } from "@/context/WishlistContext";
 import { Toaster } from "@/components/ui/toast";
 import Navbar from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
@@ -27,10 +28,12 @@ const RootLayout = ({ children }: LayoutProps<"/">) => {
     >
       <body className="min-h-full flex flex-col font-sans bg-background text-foreground">
         <ThemeProvider defaultTheme="light">
-          <Navbar />
-          <main className="flex-1">{children}</main>
-          <Footer />
-          <Toaster />
+          <WishlistProvider>
+            <Navbar />
+            <main className="flex-1">{children}</main>
+            <Footer />
+            <Toaster />
+          </WishlistProvider>
         </ThemeProvider>
       </body>
     </html>
