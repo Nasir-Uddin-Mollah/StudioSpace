@@ -16,6 +16,7 @@ export interface Studio {
   maxCapacity: number;
   location: string;
   image: string;
+  images?: string[];
   amenities: string[];
   description: string;
   userEmail: string;
@@ -34,6 +35,7 @@ export interface StudioFormData {
   maxCapacity: number;
   location: string;
   image: string;
+  images?: string[];
   amenities: string[];
   description: string;
   userEmail: string;
@@ -45,5 +47,30 @@ export interface StudioApiResponse {
   message?: string;
   data?: Studio | Studio[];
   insertedId?: string;
+}
+
+export interface Review {
+  id: string;
+  author: string;
+  avatar?: string;
+  rating: number;
+  date: string;
+  comment: string;
+  shootType: string;
+}
+
+export interface BookingRequest {
+  studioId: string;
+  studioTitle: string;
+  hourlyRate: number;
+  securityDeposit: number;
+  date: string;
+  startTime: string;
+  hours: number;
+  crewSize: number;
+  totalPrice: number;
+  notes?: string;
+  userEmail: string;
+  userName: string;
 }
 

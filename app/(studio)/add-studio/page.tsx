@@ -33,9 +33,11 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "@/components/ui/toast";
 import { authClient } from "@/lib/auth-client";
 import { StudioCategory } from "@/types/studio";
+import { cn } from "cn";
 
 const categoryOptions: StudioCategory[] = [
   "Photo Studio",
@@ -76,7 +78,8 @@ const AddStudioPage = () => {
   const [securityDeposit, setSecurityDeposit] = useState<number | string>("");
   const [maxCapacity, setMaxCapacity] = useState<number | string>("");
   const [location, setLocation] = useState("");
-  const [image, setImage] = useState("");
+  const [images, setImages] = useState<string[]>([]);
+  const [imageUrlInput, setImageUrlInput] = useState("");
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([
     "High-Speed WiFi",
     "Air Conditioning",
@@ -104,44 +107,54 @@ const AddStudioPage = () => {
   };
 
   const handleImageFileUpload = async (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = Array.from(e.target.files ?? []);
+    if (files.length === 0) return;
 
-    if (!file.type.startsWith("image/")) {
+    const remaining = 3 - images.length;
+    if (remaining <= 0) {
       toast.add({
-        title: "Invalid File Type",
-        description: "Please select an image file (PNG, JPG, WEBP).",
+        title: "Photo Limit Reached",
+        description: "You can upload a maximum of 3 photos for your studio.",
       });
       return;
     }
 
+    const filesToUpload = files.slice(0, remaining);
+    const apiKey = process.env.NEXT_PUBLIC_IMGBB_API_KEY;
+
     try {
       setIsUploading(true);
-      const apiKey = process.env.NEXT_PUBLIC_IMGBB_API_KEY;
+      const uploadedUrls: string[] = [];
 
-      const formData = new FormData();
-      formData.append("image", file);
+      for (const file of filesToUpload) {
+        if (!file.type.startsWith("image/")) continue;
+        const formData = new FormData();
+        formData.append("image", file);
 
-      const res = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
-        method: "POST",
-        body: formData,
-      });
+        const res = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
+          method: "POST",
+          body: formData,
+        });
 
-      const data = await res.json();
+        const data = await res.json();
+        if (data.success && data.data?.url) {
+          uploadedUrls.push(data.data.url);
+        }
+      }
 
-      if (data.success && data.data?.url) {
-        setImage(data.data.url);
+      if (uploadedUrls.length > 0) {
+        setImages((prev) => [...prev, ...uploadedUrls].slice(0, 3));
         toast.add({
-          title: "Image Uploaded! 📸",
-          description:
-            "Your studio photo has been hosted on ImgBB successfully.",
+          title: "Photos Uploaded! 📸",
+          description: `Uploaded ${uploadedUrls.length} ${
+            uploadedUrls.length === 1 ? "photo" : "photos"
+          } successfully.`,
         });
       } else {
         toast.add({
           title: "Upload Failed",
           description:
-            data.error?.message ||
-            "Could not upload image to ImgBB. You can paste an image URL directly.",
+            "Could not upload image to ImgBB. You can paste direct image URLs instead.",
         });
       }
     } catch {
@@ -156,13 +169,30 @@ const AddStudioPage = () => {
     }
   };
 
+  const handleAddImageUrl = () => {
+    const trimmed = imageUrlInput.trim();
+    if (!trimmed) return;
+    if (images.length >= 3) {
+      toast.add({
+        title: "Photo Limit Reached",
+        description: "You can upload a maximum of 3 photos for your studio.",
+      });
+      return;
+    }
+    setImages((prev) => [...prev, trimmed]);
+    setImageUrlInput("");
+  };
+
+  const handleRemoveImage = (indexToRemove: number) => {
+    setImages((prev) => prev.filter((_, idx) => idx !== indexToRemove));
+  };
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setFormError(null);
 
     const trimmedTitle = title.trim();
     const trimmedLocation = location.trim();
-    const trimmedImage = image.trim();
     const trimmedDescription = description.trim();
     const numHourlyRate = Number(hourlyRate);
     const numSecurityDeposit = Number(securityDeposit);
@@ -198,8 +228,8 @@ const AddStudioPage = () => {
       return;
     }
 
-    if (!trimmedImage) {
-      setFormError("Please upload or enter a studio photo URL.");
+    if (images.length === 0) {
+      setFormError("Please upload at least 1 photo for your studio (maximum 3).");
       return;
     }
 
@@ -226,7 +256,8 @@ const AddStudioPage = () => {
       securityDeposit: numSecurityDeposit,
       maxCapacity: numMaxCapacity,
       location: trimmedLocation,
-      image: trimmedImage,
+      image: images[0],
+      images: images,
       amenities: selectedAmenities,
       description: trimmedDescription,
       userEmail: session?.user?.email,
@@ -450,84 +481,114 @@ const AddStudioPage = () => {
 
           <Card className="border border-border/80 shadow-md bg-card">
             <CardHeader className="pb-3">
-              <CardTitle className="text-base font-bold flex items-center gap-2">
-                <ImageIcon className="size-4 text-primary" />
-                <span>Studio Media & Showcase Image</span>
-              </CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base font-bold flex items-center gap-2">
+                  <ImageIcon className="size-4 text-primary" />
+                  <span>Studio Photos & Gallery (1 to 3 Photos)</span>
+                </CardTitle>
+                <Badge variant="outline" className="text-xs">
+                  {images.length} / 3 Uploaded
+                </Badge>
+              </div>
               <CardDescription className="text-xs">
-                Upload a photo to ImgBB or enter a hosted direct image link.
+                Upload up to 3 high-resolution photos for the studio carousel (the first photo serves as the primary cover).
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label
-                  htmlFor="image"
-                  className="text-xs font-semibold text-foreground"
-                >
-                  Primary Studio Image URL{" "}
-                  <span className="text-rose-500">*</span>
-                </Label>
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <div className="relative flex-1">
-                    <ImageIcon className="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
-                    <Input
-                      id="image"
-                      name="image"
-                      type="url"
-                      required
-                      value={image}
-                      onChange={(e) => setImage(e.target.value)}
-                      placeholder="https://images.unsplash.com/... or upload below"
-                      className="pl-9 h-10 text-sm bg-background/50"
-                    />
-                  </div>
-
-                  <label className="inline-flex items-center justify-center gap-2 px-4 py-2 h-10 rounded-lg text-xs font-semibold border border-border/80 bg-muted/50 hover:bg-muted text-foreground cursor-pointer transition-colors shadow-xs shrink-0">
-                    {isUploading ? (
-                      <Loader2 className="size-3.5 animate-spin" />
-                    ) : (
-                      <CloudUpload className="size-3.5 text-primary" />
-                    )}
-                    <span>
-                      {isUploading ? "Uploading..." : "Upload Image"}
-                    </span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      disabled={isUploading}
-                      onChange={handleImageFileUpload}
-                      className="sr-only"
-                    />
-                  </label>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <div className="relative flex-1">
+                  <ImageIcon className="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+                  <Input
+                    type="url"
+                    value={imageUrlInput}
+                    disabled={images.length >= 3}
+                    onChange={(e) => setImageUrlInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleAddImageUrl();
+                      }
+                    }}
+                    placeholder={
+                      images.length >= 3
+                        ? "Maximum 3 photos reached"
+                        : "Paste image link and click Add Photo"
+                    }
+                    className="pl-9 h-10 text-sm bg-background/50"
+                  />
                 </div>
-                <p className="text-[11px] text-muted-foreground">
-                  Select an image from your computer to automatically host it on
-                  ImgBB, or paste any image URL.
-                </p>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleAddImageUrl}
+                  disabled={!imageUrlInput.trim() || images.length >= 3}
+                  className="h-10 text-xs shrink-0"
+                >
+                  Add Photo
+                </Button>
+
+                <label
+                  className={cn(
+                    "inline-flex items-center justify-center gap-2 px-4 py-2 h-10 rounded-lg text-xs font-semibold border border-border/80 transition-colors shadow-xs shrink-0",
+                    images.length >= 3
+                      ? "opacity-50 pointer-events-none bg-muted text-muted-foreground"
+                      : "bg-muted/50 hover:bg-muted text-foreground cursor-pointer"
+                  )}
+                >
+                  {isUploading ? (
+                    <Loader2 className="size-3.5 animate-spin" />
+                  ) : (
+                    <CloudUpload className="size-3.5 text-primary" />
+                  )}
+                  <span>{isUploading ? "Uploading..." : "Upload Photos"}</span>
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    disabled={isUploading || images.length >= 3}
+                    onChange={handleImageFileUpload}
+                    className="sr-only"
+                  />
+                </label>
               </div>
 
-              {image ? (
-                <div className="relative rounded-xl border border-border/80 overflow-hidden bg-muted/20 h-48 sm:h-56">
-                  <img
-                    src={image}
-                    alt="Studio preview"
-                    className="w-full h-full object-cover"
-                    onError={() => {
-                      toast.add({
-                        title: "Image Preview Error",
-                        description:
-                          "Could not load preview from this URL. Please verify the link.",
-                      });
-                    }}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setImage("")}
-                    className="absolute top-2 right-2 size-7 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black transition-colors cursor-pointer"
-                    aria-label="Remove image"
-                  >
-                    <X className="size-3.5" />
-                  </button>
+              {images.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+                  {images.map((src, idx) => (
+                    <div
+                      key={idx}
+                      className="group relative rounded-xl border border-border/80 overflow-hidden bg-muted/20 h-44"
+                    >
+                      <img
+                        src={src}
+                        alt={`Studio photo ${idx + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute top-2 left-2">
+                        {idx === 0 ? (
+                          <Badge className="bg-primary text-primary-foreground text-[10px] font-semibold">
+                            Cover Photo
+                          </Badge>
+                        ) : (
+                          <Badge
+                            variant="secondary"
+                            className="bg-black/60 text-white backdrop-blur-xs text-[10px] font-medium"
+                          >
+                            Photo {idx + 1}
+                          </Badge>
+                        )}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveImage(idx)}
+                        className="absolute top-2 right-2 size-7 rounded-full bg-black/70 text-white flex items-center justify-center hover:bg-rose-600 transition-colors cursor-pointer"
+                        aria-label={`Remove photo ${idx + 1}`}
+                      >
+                        <X className="size-3.5" />
+                      </button>
+                    </div>
+                  ))}
                 </div>
               ) : (
                 <div className="border border-dashed border-border/80 rounded-xl p-8 text-center bg-muted/10 space-y-2">
@@ -535,10 +596,10 @@ const AddStudioPage = () => {
                     <ImageIcon className="size-5" />
                   </div>
                   <p className="text-xs font-medium text-foreground">
-                    No image attached yet
+                    No photos attached yet
                   </p>
                   <p className="text-[11px] text-muted-foreground">
-                    Upload a high-resolution wide shot to captivate creators.
+                    Upload 1 to 3 high-resolution photos to showcase your space in the gallery carousel.
                   </p>
                 </div>
               )}
