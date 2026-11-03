@@ -14,15 +14,32 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/toast";
 import { Studio } from "@/types/studio";
-import { Calendar, Clock, Users, ShieldCheck, CreditCard } from "lucide-react";
+import { authClient } from "@/lib/auth-client";
+import {
+  Calendar,
+  Clock,
+  Users,
+  ShieldCheck,
+  CreditCard,
+  Loader2,
+} from "lucide-react";
 
 interface BookingModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   studio: Studio;
+  onBookingSuccess?: () => void;
 }
 
-const BookingModal = ({ isOpen, onOpenChange, studio }: BookingModalProps) => {
+const BookingModal = ({
+  isOpen,
+  onOpenChange,
+  studio,
+  onBookingSuccess,
+}: BookingModalProps) => {
+  const { data: session } = authClient.useSession();
+  const user = session?.user;
+
   const [date, setDate] = useState("");
   const [startTime, setStartTime] = useState("10:00");
   const [hours, setHours] = useState(4);
@@ -32,8 +49,9 @@ const BookingModal = ({ isOpen, onOpenChange, studio }: BookingModalProps) => {
   const subtotal = studio.hourlyRate * hours;
   const total = subtotal + studio.securityDeposit;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!date) {
       toast.add({
         title: "Please select a date",
@@ -42,20 +60,61 @@ const BookingModal = ({ isOpen, onOpenChange, studio }: BookingModalProps) => {
       return;
     }
 
-    setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
-      onOpenChange(false);
-      toast.add({
-        title: "Booking Requested! 🎬",
-        description: `Your reservation for "${studio.title}" on ${date} (${hours} hrs) has been sent to ${studio.userName}.`,
+    try {
+      setIsSubmitting(true);
+
+      const bookingData = {
+        studioId: studio._id,
+        studioTitle: studio.title,
+        studioImage: studio.image,
+        studioCategory: studio.category,
+        studioLocation: studio.location,
+        hostEmail: studio.userEmail,
+        hostName: studio.userName,
+        userEmail: user?.email || "",
+        userName: user?.name || "Creator",
+        date,
+        startTime,
+        hours: Number(hours),
+        crewSize: Number(crewSize),
+        hourlyRate: studio.hourlyRate,
+        securityDeposit: studio.securityDeposit,
+        totalAmount: total,
+        status: "confirmed",
+      };
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/bookings`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(bookingData),
       });
-    }, 600);
+
+      const result = await res.json();
+
+      if (result.acknowledged || result.insertedId) {
+        toast.add({
+          title: "Booking Confirmed! 🎬",
+          description: `Your reservation for "${studio.title}" on ${date} (${hours} hrs) has been submitted!`,
+        });
+        onOpenChange(false);
+        onBookingSuccess?.();
+      }
+    } catch {
+      toast.add({
+        title: "Connection Error",
+        description:
+          "Unable to connect to the booking server. Please check your backend.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md p-6">
+      <DialogContent className="sm:max-w-md max-h-[85vh] sm:max-h-[90vh] overflow-y-auto p-5 sm:p-6">
         <DialogHeader className="text-left space-y-1">
           <DialogTitle className="text-xl font-bold font-heading">
             Book Workspace
@@ -76,6 +135,7 @@ const BookingModal = ({ isOpen, onOpenChange, studio }: BookingModalProps) => {
                 id="date"
                 type="date"
                 required
+                min={new Date().toISOString().split("T")[0]}
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
                 className="pl-9 h-10 text-sm"
@@ -163,6 +223,7 @@ const BookingModal = ({ isOpen, onOpenChange, studio }: BookingModalProps) => {
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
+              disabled={isSubmitting}
             >
               Cancel
             </Button>
@@ -171,8 +232,17 @@ const BookingModal = ({ isOpen, onOpenChange, studio }: BookingModalProps) => {
               disabled={isSubmitting}
               className="gap-2 font-semibold"
             >
-              <CreditCard className="size-4" />
-              <span>{isSubmitting ? "Submitting..." : "Confirm Booking"}</span>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="size-4 animate-spin" />
+                  <span>Submitting...</span>
+                </>
+              ) : (
+                <>
+                  <CreditCard className="size-4" />
+                  <span>Confirm Booking</span>
+                </>
+              )}
             </Button>
           </DialogFooter>
         </form>

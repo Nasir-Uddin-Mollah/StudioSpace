@@ -30,6 +30,7 @@ import BookingModal from "./BookingModal";
 
 interface StudioDetailsClientProps {
   studio: Studio;
+  initialIsBooked?: boolean;
 }
 
 const defaultReviews = [
@@ -51,9 +52,13 @@ const defaultReviews = [
   },
 ];
 
-const StudioDetailsClient = ({ studio }: StudioDetailsClientProps) => {
+const StudioDetailsClient = ({
+  studio,
+  initialIsBooked = false,
+}: StudioDetailsClientProps) => {
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+  const [isBooked, setIsBooked] = useState(initialIsBooked);
   const [activeIdx, setActiveIdx] = useState(0);
 
   const galleryImages = (
@@ -482,11 +487,26 @@ const StudioDetailsClient = ({ studio }: StudioDetailsClientProps) => {
 
             <Button
               size="lg"
+              disabled={isBooked}
               onClick={() => setIsBookingOpen(true)}
-              className="w-full gap-2 font-bold text-sm shadow-md cursor-pointer"
+              className={cn(
+                "w-full gap-2 font-bold text-sm shadow-md",
+                isBooked
+                  ? "bg-muted text-muted-foreground cursor-not-allowed opacity-90 border border-border"
+                  : "cursor-pointer",
+              )}
             >
-              <CalendarCheck className="size-4" />
-              <span>Book Workspace Now</span>
+              {isBooked ? (
+                <>
+                  <CheckCircle2 className="size-4 text-emerald-500" />
+                  <span>Workspace Booked</span>
+                </>
+              ) : (
+                <>
+                  <CalendarCheck className="size-4" />
+                  <span>Book Workspace Now</span>
+                </>
+              )}
             </Button>
 
             <div className="space-y-2.5 pt-2 text-xs text-muted-foreground">
@@ -524,6 +544,7 @@ const StudioDetailsClient = ({ studio }: StudioDetailsClientProps) => {
         isOpen={isBookingOpen}
         onOpenChange={setIsBookingOpen}
         studio={studio}
+        onBookingSuccess={() => setIsBooked(true)}
       />
     </div>
   );

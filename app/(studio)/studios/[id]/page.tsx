@@ -1,8 +1,10 @@
+import { headers } from "next/headers";
 import Link from "next/link";
 import { ArrowLeft, Building2 } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "cn";
 import { Studio } from "@/types/studio";
+import { auth } from "@/lib/auth";
 import StudioDetailsClient from "./_components/StudioDetailsClient";
 
 interface PageProps {
@@ -13,6 +15,7 @@ const StudioDetailsPage = async ({ params }: PageProps) => {
   const { id } = await params;
 
   let studio: Studio | null = null;
+  let initialIsBooked = false;
 
   try {
     const res = await fetch(
@@ -24,6 +27,29 @@ const StudioDetailsPage = async ({ params }: PageProps) => {
     }
   } catch {
     studio = null;
+  }
+
+  if (studio) {
+    try {
+      const session = await auth.api.getSession({
+        headers: await headers(),
+      });
+
+      if (session?.user?.email) {
+        const bookingsRes = await fetch(
+          `${process.env.NEXT_PUBLIC_SERVER_URL}/bookings?email=${encodeURIComponent(session.user.email)}`,
+          { cache: "no-store" },
+        );
+        if (bookingsRes.ok) {
+          const bookings = await bookingsRes.json();
+          initialIsBooked = bookings.some(
+            (b: { studioId: string }) => b.studioId === id,
+          );
+        }
+      }
+    } catch {
+      initialIsBooked = false;
+    }
   }
 
   if (!studio) {
@@ -49,7 +75,10 @@ const StudioDetailsPage = async ({ params }: PageProps) => {
 
   return (
     <div className="min-h-screen bg-background">
-      <StudioDetailsClient studio={studio} />
+      <StudioDetailsClient
+        studio={studio}
+        initialIsBooked={initialIsBooked}
+      />
     </div>
   );
 };
