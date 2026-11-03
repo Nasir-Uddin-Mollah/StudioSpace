@@ -80,7 +80,7 @@ const BookingModal = ({
         hourlyRate: studio.hourlyRate,
         securityDeposit: studio.securityDeposit,
         totalAmount: total,
-        status: "confirmed",
+        status: "Pending",
       };
 
       const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/bookings`, {

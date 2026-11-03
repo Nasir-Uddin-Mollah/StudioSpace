@@ -43,7 +43,8 @@ const StudioDetailsPage = async ({ params }: PageProps) => {
         if (bookingsRes.ok) {
           const bookings = await bookingsRes.json();
           initialIsBooked = bookings.some(
-            (b: { studioId: string }) => b.studioId === id,
+            (b: { studioId: string; status?: string }) =>
+              b.studioId === id && b.status?.toLowerCase() !== "cancelled",
           );
         }
       }
