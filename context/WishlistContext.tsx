@@ -12,6 +12,7 @@ import { toast } from "@/components/ui/toast";
 import { Studio } from "@/types/studio";
 import { WishlistItem } from "@/types/wishlist";
 import { authClient } from "@/lib/auth-client";
+import { getTokenFromClient } from "@/lib/getTokenFromClient";
 
 interface WishlistContextType {
   wishlist: WishlistItem[];
@@ -48,7 +49,7 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
     try {
       setIsLoading(true);
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/wishlist?email=${encodeURIComponent(user.email)}`
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/wishlist?email=${encodeURIComponent(user.email)}`,
       );
       if (res.ok) {
         const data = await res.json();
@@ -70,7 +71,7 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
       if (!studioId) return false;
       return wishlist.some((item) => item.studioId === studioId);
     },
-    [wishlist]
+    [wishlist],
   );
 
   const toggleWishlist = async (studio: Studio): Promise<boolean> => {
@@ -86,8 +87,10 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
 
     const studioId = studio._id;
     const isCurrentlyWishlisted = wishlist.some(
-      (item) => item.studioId === studioId
+      (item) => item.studioId === studioId,
     );
+
+    const token = await getTokenFromClient();
 
     if (isCurrentlyWishlisted) {
       setWishlist((prev) => prev.filter((item) => item.studioId !== studioId));
@@ -99,7 +102,13 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
       try {
         await fetch(
           `${process.env.NEXT_PUBLIC_SERVER_URL}/wishlist?email=${encodeURIComponent(user.email)}&studioId=${encodeURIComponent(studioId)}`,
-          { method: "DELETE" }
+          {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+              authorization: `Bearer ${token}`,
+            },
+          },
         );
       } catch {
         fetchWishlist();
@@ -133,6 +142,7 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(newItem),
         });
@@ -145,6 +155,8 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
 
   const removeFromWishlist = async (studioId: string) => {
     if (!user?.email || !studioId) return;
+
+    const token = await getTokenFromClient();
 
     const target = wishlist.find((i) => i.studioId === studioId);
     setWishlist((prev) => prev.filter((item) => item.studioId !== studioId));
@@ -159,7 +171,13 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
     try {
       await fetch(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/wishlist?email=${encodeURIComponent(user.email)}&studioId=${encodeURIComponent(studioId)}`,
-        { method: "DELETE" }
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${token}`,
+          },
+        },
       );
     } catch {
       fetchWishlist();
@@ -183,4 +201,3 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
 };
 
 export const useWishlist = () => useContext(WishlistContext);
-

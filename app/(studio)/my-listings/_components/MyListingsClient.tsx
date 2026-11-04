@@ -27,6 +27,7 @@ import { Studio } from "@/types/studio";
 import { cn } from "cn";
 import ListingsTable from "./ListingsTable";
 import ListingsCards from "./ListingsCards";
+import { getTokenFromClient } from "@/lib/getTokenFromClient";
 
 interface MyListingsClientProps {
   initialStudios: Studio[];
@@ -42,11 +43,17 @@ const MyListingsClient = ({ initialStudios = [] }: MyListingsClientProps) => {
     if (!studioToDelete?._id) return;
     setIsDeleting(true);
 
+    const token = await getTokenFromClient();
+
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_SERVER_URL}/studios/${studioToDelete._id}`,
       {
         method: "DELETE",
-      }
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${token}`,
+        },
+      },
     );
     const data = await res.json();
 
@@ -74,7 +81,8 @@ const MyListingsClient = ({ initialStudios = [] }: MyListingsClientProps) => {
             </Badge>
           </div>
           <p className="text-sm text-muted-foreground">
-            Manage your listed studios, update details, or remove inactive spaces.
+            Manage your listed studios, update details, or remove inactive
+            spaces.
           </p>
         </div>
 
@@ -102,7 +110,10 @@ const MyListingsClient = ({ initialStudios = [] }: MyListingsClientProps) => {
 
           <Link
             href="/add-studio"
-            className={cn(buttonVariants({ variant: "default", size: "sm" }), "gap-1.5")}
+            className={cn(
+              buttonVariants({ variant: "default", size: "sm" }),
+              "gap-1.5",
+            )}
           >
             <Plus className="size-4" />
             Add New Studio
@@ -119,7 +130,8 @@ const MyListingsClient = ({ initialStudios = [] }: MyListingsClientProps) => {
             No Studio Listings Yet
           </h3>
           <p className="text-sm text-muted-foreground max-w-sm mx-auto mb-6">
-            You haven&apos;t published any creative studios yet. Share your space and start earning today!
+            You haven&apos;t published any creative studios yet. Share your
+            space and start earning today!
           </p>
           <Link
             href="/add-studio"
@@ -145,8 +157,8 @@ const MyListingsClient = ({ initialStudios = [] }: MyListingsClientProps) => {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Studio Listing?</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete &ldquo;{studioToDelete?.title}&rdquo;?
-              This action cannot be undone.
+              Are you sure you want to delete &ldquo;{studioToDelete?.title}
+              &rdquo;? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

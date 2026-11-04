@@ -37,6 +37,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "@/components/ui/toast";
 import { Studio, StudioCategory } from "@/types/studio";
 import { cn } from "cn";
+import { getTokenFromClient } from "@/lib/getTokenFromClient";
 
 const categoryOptions: StudioCategory[] = [
   "Photo Studio",
@@ -264,12 +265,15 @@ const EditStudioForm = ({ studio, id }: EditStudioFormProps) => {
       description: trimmedDescription,
     };
 
+    const token = await getTokenFromClient();
+
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_SERVER_URL}/studio/${id}`,
       {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
+          authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(payload),
       },

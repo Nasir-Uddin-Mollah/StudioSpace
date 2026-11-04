@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { headers } from "next/headers";
 import { Loader2 } from "lucide-react";
 import { auth } from "@/lib/auth";
+import { serverFetch } from "@/lib/api-server";
 import MyBookingsClient from "./_components/MyBookingsClient";
 import { Booking } from "@/types/booking";
 
@@ -14,9 +15,9 @@ const BookingsContent = async () => {
 
   try {
     if (session?.user?.email) {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/bookings?email=${encodeURIComponent(session.user.email)}`,
-        { cache: "no-store" }
+      const res = await serverFetch(
+        `/bookings?email=${encodeURIComponent(session.user.email)}`,
+        { cache: "no-store" },
       );
       if (res.ok) {
         initialBookings = await res.json();

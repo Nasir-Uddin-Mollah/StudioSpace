@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { headers } from "next/headers";
 import { Loader2 } from "lucide-react";
 import { auth } from "@/lib/auth";
+import { serverFetch } from "@/lib/api-server";
 import MyListingsClient from "./_components/MyListingsClient";
 
 const ListingsContent = async () => {
@@ -9,9 +10,9 @@ const ListingsContent = async () => {
     headers: await headers(),
   });
 
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_SERVER_URL}/my-listings?email=${session?.user?.email}`,
-  );
+  const res = await serverFetch(`/my-listings?email=${session?.user?.email}`, {
+    cache: "no-store",
+  });
   const initialStudios = await res.json();
 
   return <MyListingsClient initialStudios={initialStudios} />;

@@ -38,6 +38,7 @@ import { toast } from "@/components/ui/toast";
 import { authClient } from "@/lib/auth-client";
 import { StudioCategory } from "@/types/studio";
 import { cn } from "cn";
+import { getTokenFromClient } from "@/lib/getTokenFromClient";
 
 const categoryOptions: StudioCategory[] = [
   "Photo Studio",
@@ -264,10 +265,13 @@ const AddStudioPage = () => {
       userName: session?.user?.name,
     };
 
+    const token = await getTokenFromClient();
+
     const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/studios`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(payload),
     });

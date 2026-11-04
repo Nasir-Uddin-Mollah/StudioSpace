@@ -23,6 +23,7 @@ import {
   CreditCard,
   Loader2,
 } from "lucide-react";
+import { getTokenFromClient } from "@/lib/getTokenFromClient";
 
 interface BookingModalProps {
   isOpen: boolean;
@@ -83,10 +84,13 @@ const BookingModal = ({
         status: "Pending",
       };
 
+      const token = await getTokenFromClient();
+
       const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/bookings`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(bookingData),
       });

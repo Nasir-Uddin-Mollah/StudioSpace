@@ -27,6 +27,7 @@ import { Booking } from "@/types/booking";
 import { cn } from "cn";
 import BookingsTable from "./BookingsTable";
 import BookingsCards from "./BookingsCards";
+import { getTokenFromClient } from "@/lib/getTokenFromClient";
 
 interface MyBookingsClientProps {
   initialBookings: Booking[];
@@ -40,9 +41,7 @@ const filterOptions = [
   { label: "Cancelled", value: "cancelled" },
 ] as const;
 
-const MyBookingsClient = ({
-  initialBookings = [],
-}: MyBookingsClientProps) => {
+const MyBookingsClient = ({ initialBookings = [] }: MyBookingsClientProps) => {
   const [bookings, setBookings] = useState<Booking[]>(initialBookings ?? []);
   const [viewMode, setViewMode] = useState<"table" | "grid">("table");
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -50,16 +49,16 @@ const MyBookingsClient = ({
   const [isCancelling, setIsCancelling] = useState(false);
 
   const pendingCount = bookings.filter(
-    (b) => !b.status || b.status?.toLowerCase() === "pending"
+    (b) => !b.status || b.status?.toLowerCase() === "pending",
   ).length;
   const confirmedCount = bookings.filter(
-    (b) => b.status?.toLowerCase() === "confirmed"
+    (b) => b.status?.toLowerCase() === "confirmed",
   ).length;
   const completedCount = bookings.filter(
-    (b) => b.status?.toLowerCase() === "completed"
+    (b) => b.status?.toLowerCase() === "completed",
   ).length;
   const cancelledCount = bookings.filter(
-    (b) => b.status?.toLowerCase() === "cancelled"
+    (b) => b.status?.toLowerCase() === "cancelled",
   ).length;
 
   const getCountForFilter = (val: string) => {
@@ -89,6 +88,8 @@ const MyBookingsClient = ({
     if (!bookingToCancel?._id) return;
     setIsCancelling(true);
 
+    const token = await getTokenFromClient();
+
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/bookings/${bookingToCancel._id}`,
@@ -96,9 +97,10 @@ const MyBookingsClient = ({
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
+            authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ status: "Cancelled" }),
-        }
+        },
       );
 
       const data = await res.json();
@@ -106,8 +108,8 @@ const MyBookingsClient = ({
       if (data.acknowledged || data.modifiedCount > 0) {
         setBookings((prev) =>
           prev.map((b) =>
-            b._id === bookingToCancel._id ? { ...b, status: "Cancelled" } : b
-          )
+            b._id === bookingToCancel._id ? { ...b, status: "Cancelled" } : b,
+          ),
         );
         toast.add({
           title: "Booking Cancelled",
@@ -138,7 +140,8 @@ const MyBookingsClient = ({
             </Badge>
           </div>
           <p className="text-sm text-muted-foreground">
-            View your upcoming sessions, reservation status, and manage active booking requests.
+            View your upcoming sessions, reservation status, and manage active
+            booking requests.
           </p>
         </div>
 
@@ -168,7 +171,7 @@ const MyBookingsClient = ({
             href="/studios"
             className={cn(
               buttonVariants({ size: "sm" }),
-              "h-9 text-xs font-semibold gap-1.5 shadow-xs"
+              "h-9 text-xs font-semibold gap-1.5 shadow-xs",
             )}
           >
             <CalendarCheck className="size-4" />
@@ -191,7 +194,7 @@ const MyBookingsClient = ({
                 "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors border cursor-pointer",
                 isActive
                   ? "bg-primary text-primary-foreground border-primary"
-                  : "bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground border-border"
+                  : "bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground border-border",
               )}
             >
               <span>{opt.label}</span>
@@ -200,7 +203,7 @@ const MyBookingsClient = ({
                   "px-1.5 py-0.2 rounded-full text-[10px] font-bold",
                   isActive
                     ? "bg-primary-foreground/20 text-primary-foreground"
-                    : "bg-muted text-muted-foreground"
+                    : "bg-muted text-muted-foreground",
                 )}
               >
                 {count}
@@ -219,7 +222,8 @@ const MyBookingsClient = ({
             No Reservations Found
           </h3>
           <p className="text-sm text-muted-foreground max-w-md mb-6">
-            You haven&apos;t reserved any creative workspaces yet. Browse verified studios and book your next shoot or production.
+            You haven&apos;t reserved any creative workspaces yet. Browse
+            verified studios and book your next shoot or production.
           </p>
           <Link
             href="/studios"
@@ -235,7 +239,8 @@ const MyBookingsClient = ({
             No {statusFilter} bookings
           </p>
           <p className="text-xs text-muted-foreground max-w-sm">
-            There are currently no reservations matching the &quot;{statusFilter}&quot; status filter.
+            There are currently no reservations matching the &quot;
+            {statusFilter}&quot; status filter.
           </p>
           <Button
             variant="outline"
@@ -273,7 +278,8 @@ const MyBookingsClient = ({
               <strong className="text-foreground">
                 &quot;{bookingToCancel?.studioTitle}&quot;
               </strong>{" "}
-              on {bookingToCancel?.date} ({bookingToCancel?.hours} hrs)? Your slot will be released and the booking will be marked as Cancelled.
+              on {bookingToCancel?.date} ({bookingToCancel?.hours} hrs)? Your
+              slot will be released and the booking will be marked as Cancelled.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -305,4 +311,3 @@ const MyBookingsClient = ({
 };
 
 export default MyBookingsClient;
-

@@ -5,6 +5,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { cn } from "cn";
 import { Studio } from "@/types/studio";
 import { auth } from "@/lib/auth";
+import { serverFetch } from "@/lib/api-server";
 import StudioDetailsClient from "./_components/StudioDetailsClient";
 
 interface PageProps {
@@ -36,8 +37,8 @@ const StudioDetailsPage = async ({ params }: PageProps) => {
       });
 
       if (session?.user?.email) {
-        const bookingsRes = await fetch(
-          `${process.env.NEXT_PUBLIC_SERVER_URL}/bookings?email=${encodeURIComponent(session.user.email)}`,
+        const bookingsRes = await serverFetch(
+          `/bookings?email=${encodeURIComponent(session.user.email)}`,
           { cache: "no-store" },
         );
         if (bookingsRes.ok) {
@@ -76,10 +77,7 @@ const StudioDetailsPage = async ({ params }: PageProps) => {
 
   return (
     <div className="min-h-screen bg-background">
-      <StudioDetailsClient
-        studio={studio}
-        initialIsBooked={initialIsBooked}
-      />
+      <StudioDetailsClient studio={studio} initialIsBooked={initialIsBooked} />
     </div>
   );
 };
