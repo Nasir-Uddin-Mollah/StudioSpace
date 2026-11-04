@@ -516,21 +516,11 @@ const EditStudioForm = ({ studio, id }: EditStudioFormProps) => {
                   placeholder={
                     images.length >= 3
                       ? "Maximum 3 photos reached"
-                      : "Paste image link and click Add Photo"
+                      : "Paste image URL and press Enter"
                   }
                   className="pl-9 h-10 text-sm bg-background/50"
                 />
               </div>
-
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleAddImageUrl}
-                disabled={!imageUrlInput.trim() || images.length >= 3}
-                className="h-10 text-xs shrink-0"
-              >
-                Add Photo
-              </Button>
 
               <label
                 className={cn(
