@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import {
   MapPin,
@@ -27,6 +28,7 @@ import { toast } from "@/components/ui/toast";
 import { Studio } from "@/types/studio";
 import { cn } from "cn";
 import { useWishlist } from "@/context/WishlistContext";
+import { authClient } from "@/lib/auth-client";
 import BookingModal from "./BookingModal";
 
 interface StudioDetailsClientProps {
@@ -60,9 +62,24 @@ const StudioDetailsClient = ({
   const { isInWishlist, toggleWishlist } = useWishlist();
   const isSaved = studio._id ? isInWishlist(studio._id) : false;
 
+  const { data: session } = authClient.useSession();
+  const router = useRouter();
+
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [isBooked, setIsBooked] = useState(initialIsBooked);
   const [activeIdx, setActiveIdx] = useState(0);
+
+  const handleOpenBooking = () => {
+    if (!session?.user) {
+      toast.add({
+        title: "Please Sign In",
+        description: "You must be logged in to book a workspace.",
+      });
+      router.push(`/login?callbackUrl=/studios/${studio._id}`);
+      return;
+    }
+    setIsBookingOpen(true);
+  };
 
   const galleryImages = (
     studio.images && studio.images.length > 0
@@ -489,7 +506,7 @@ const StudioDetailsClient = ({
             <Button
               size="lg"
               disabled={isBooked}
-              onClick={() => setIsBookingOpen(true)}
+              onClick={handleOpenBooking}
               className={cn(
                 "w-full gap-2 font-bold text-sm shadow-md",
                 isBooked
@@ -523,19 +540,6 @@ const StudioDetailsClient = ({
                 <Clock className="size-4 text-primary shrink-0" />
                 <span>Direct digital door access upon booking</span>
               </div>
-            </div>
-
-            <div className="pt-4 border-t border-border/60 text-center">
-              <p className="text-xs text-muted-foreground">
-                Questions for the host?{" "}
-                <button
-                  type="button"
-                  onClick={() => setIsBookingOpen(true)}
-                  className="font-semibold text-primary hover:underline cursor-pointer"
-                >
-                  Message {studio.userName}
-                </button>
-              </p>
             </div>
           </div>
         </div>
