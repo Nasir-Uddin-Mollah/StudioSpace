@@ -22,6 +22,7 @@ import {
   ShieldCheck,
   CreditCard,
   Loader2,
+  AlertCircle,
 } from "lucide-react";
 import { getTokenFromClient } from "@/lib/getTokenFromClient";
 
@@ -46,12 +47,21 @@ const BookingModal = ({
   const [hours, setHours] = useState(4);
   const [crewSize, setCrewSize] = useState(Math.min(4, studio.maxCapacity));
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [conflictError, setConflictError] = useState<string | null>(null);
 
   const subtotal = studio.hourlyRate * hours;
   const total = subtotal + studio.securityDeposit;
 
+  const handleModalClose = (open: boolean) => {
+    if (!open) {
+      setConflictError(null);
+    }
+    onOpenChange(open);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setConflictError(null);
 
     if (!date) {
       toast.add({
@@ -81,28 +91,38 @@ const BookingModal = ({
         hourlyRate: studio.hourlyRate,
         securityDeposit: studio.securityDeposit,
         totalAmount: total,
-        status: "Pending",
       };
 
       const token = await getTokenFromClient();
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/bookings`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          authorization: `Bearer ${token}`,
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/bookings`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(bookingData),
         },
-        body: JSON.stringify(bookingData),
-      });
+      );
 
       const result = await res.json();
+
+      if (!result.acknowledged) {
+        setConflictError(
+          result.message ||
+            "This studio is already booked for this date/time slot. Please choose another slot.",
+        );
+        return;
+      }
 
       if (result.acknowledged || result.insertedId) {
         toast.add({
           title: "Booking Confirmed! 🎬",
           description: `Your reservation for "${studio.title}" on ${date} (${hours} hrs) has been submitted!`,
         });
-        onOpenChange(false);
+        handleModalClose(false);
         onBookingSuccess?.();
       }
     } catch {
@@ -117,7 +137,7 @@ const BookingModal = ({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={handleModalClose}>
       <DialogContent className="sm:max-w-md max-h-[85vh] sm:max-h-[90vh] overflow-y-auto p-5 sm:p-6">
         <DialogHeader className="text-left space-y-1">
           <DialogTitle className="text-xl font-bold font-heading">
@@ -129,6 +149,18 @@ const BookingModal = ({
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 pt-2">
+          {conflictError && (
+            <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-3.5 text-xs text-destructive flex items-start gap-2.5 animate-in fade-in-50">
+              <AlertCircle className="size-4 shrink-0 mt-0.5 text-destructive" />
+              <div className="space-y-0.5">
+                <p className="font-semibold text-destructive">Booking Conflict</p>
+                <p className="text-muted-foreground leading-relaxed">
+                  {conflictError}
+                </p>
+              </div>
+            </div>
+          )}
+
           <div className="space-y-1.5">
             <Label htmlFor="date" className="text-xs font-semibold">
               Shoot Date
@@ -141,7 +173,10 @@ const BookingModal = ({
                 required
                 min={new Date().toISOString().split("T")[0]}
                 value={date}
-                onChange={(e) => setDate(e.target.value)}
+                onChange={(e) => {
+                  setDate(e.target.value);
+                  setConflictError(null);
+                }}
                 className="pl-9 h-10 text-sm"
               />
             </div>
@@ -158,7 +193,10 @@ const BookingModal = ({
                   id="time"
                   type="time"
                   value={startTime}
-                  onChange={(e) => setStartTime(e.target.value)}
+                  onChange={(e) => {
+                    setStartTime(e.target.value);
+                    setConflictError(null);
+                  }}
                   className="pl-9 h-10 text-sm"
                 />
               </div>
@@ -174,7 +212,10 @@ const BookingModal = ({
                 min={1}
                 max={24}
                 value={hours}
-                onChange={(e) => setHours(Number(e.target.value))}
+                onChange={(e) => {
+                  setHours(Number(e.target.value));
+                  setConflictError(null);
+                }}
                 className="h-10 text-sm"
               />
             </div>
@@ -226,7 +267,7 @@ const BookingModal = ({
             <Button
               type="button"
               variant="outline"
-              onClick={() => onOpenChange(false)}
+              onClick={() => handleModalClose(false)}
               disabled={isSubmitting}
             >
               Cancel
