@@ -220,33 +220,13 @@ const Footer = () => {
           <p>© 2026 StudioSpace Platform Inc. All rights reserved.</p>
 
           <div className="flex items-center gap-4 flex-wrap justify-center">
-            <Link
-              href="/terms"
-              className="hover:text-foreground transition-colors"
-            >
-              Terms of Service
-            </Link>
+            <span>Terms of Service</span>
             <span className="text-border">•</span>
-            <Link
-              href="/privacy"
-              className="hover:text-foreground transition-colors"
-            >
-              Privacy Notice
-            </Link>
+            <span>Privacy Notice</span>
             <span className="text-border">•</span>
-            <Link
-              href="/cookies"
-              className="hover:text-foreground transition-colors"
-            >
-              Cookie Preferences
-            </Link>
+            <span>Cookie Preferences</span>
             <span className="text-border">•</span>
-            <Link
-              href="/trust-safety"
-              className="hover:text-foreground transition-colors"
-            >
-              Trust & Safety
-            </Link>
+            <span>Trust & Safety</span>
           </div>
         </div>
       </div>
