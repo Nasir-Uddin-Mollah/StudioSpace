@@ -18,6 +18,7 @@
 ## 🌐 Live Site & Repository Links
 
 - **Live Application URL:** [https://studiospace-eight.vercel.app](https://studiospace-eight.vercel.app)
+- **Live Server API URL:** [https://studiospace-server-olive.vercel.app](https://studiospace-server-olive.vercel.app)
 - **Client-Side Repository:** [https://github.com/Nasir-Uddin-Mollah/StudioSpace](https://github.com/Nasir-Uddin-Mollah/StudioSpace)
 - **Server-Side Repository:** [https://github.com/Nasir-Uddin-Mollah/StudioSpace-Server](https://github.com/Nasir-Uddin-Mollah/StudioSpace-Server)
 
@@ -29,8 +30,8 @@ Examiners can test the application instantly without manual registration:
 
 | Field | Value |
 | --- | --- |
-| **Test Email** | `examiner@studiospace.com` |
-| **Test Password** | `Examiner123!` |
+| **Test Email** | `juja@mailinator.com` |
+| **Test Password** | `Abcd12345` |
 | **Social Login** | One-Click Google Authentication is fully enabled |
 | **Registration** | Any new test account can be registered instantly (No email verification roadblock) |
 
