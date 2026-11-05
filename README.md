@@ -7,13 +7,17 @@
 [![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-4EA94B?style=for-the-badge&logo=mongodb)](https://www.mongodb.com/)
 [![Express](https://img.shields.io/badge/Express-Backend-lightgrey?style=for-the-badge&logo=express)](https://expressjs.com/)
 
+<p align="center">
+  <img src="./public/studiospace-preview.png" alt="StudioSpace Marketplace Banner Preview" width="100%" />
+</p>
+
 **StudioSpace** is a high-performance peer-to-peer marketplace designed for creators, filmmakers, photographers, podcasters, and musicians. Studio owners and hosts can list their creative spaces—ranging from photography cyc walls and cinema sound stages to podcast lounges, music recording suites, and art workshops. Fellow creators can discover, filter, inspect dynamic availability, and reserve studio slots with transparent pricing and real-time booking management.
 
 ---
 
 ## 🌐 Live Site & Repository Links
 
-- **Live Application URL:** [https://studiospace-app.vercel.app](https://studiospace-app.vercel.app) *(Replace with your exact Vercel URL if different)*
+- **Live Application URL:** [https://studiospace-eight.vercel.app](https://studiospace-eight.vercel.app)
 - **Client-Side Repository:** [https://github.com/Nasir-Uddin-Mollah/StudioSpace](https://github.com/Nasir-Uddin-Mollah/StudioSpace)
 - **Server-Side Repository:** [https://github.com/Nasir-Uddin-Mollah/StudioSpace-Server](https://github.com/Nasir-Uddin-Mollah/StudioSpace-Server)
 
@@ -149,8 +153,3 @@ git clone https://github.com/Nasir-Uddin-Mollah/StudioSpace-Server.git
 ## 🔒 Security & Route Protection
 - **Private Routes (`/add-studio`, `/my-listings`, `/my-bookings`, `/wishlist`):** Protected on both client and server layers. Unauthenticated users attempting to access these routes or click "Book Workspace Now" are automatically redirected to the `/login` page with return `callbackUrl` preservation.
 - **Data Protection:** All MongoDB mutations (`POST /studios`, `DELETE /studios/:id`, `PATCH /studio/:id`, `POST /bookings`) require a valid Bearer JWT token in the Authorization header.
-
----
-
-## 📄 License
-This project is developed for educational and portfolio demonstration purposes as part of the **Programming Hero Full Stack Web Development Program**.
